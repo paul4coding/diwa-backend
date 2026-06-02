@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmez votre compte DIWA</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px; }
+        .header { background-color: #1A5276; color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { padding: 20px; text-align: center; }
+        .btn { display: inline-block; background-color: #1A5276; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; margin: 20px 0; }
+        .footer { font-size: 12px; color: #777; text-align: center; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Bienvenue chez DIWA</h1>
+        </div>
+        <div class="content">
+            <p>Bonjour <span th:text="${userName}">Utilisateur</span>,</p>
+            <p>Merci de vous être inscrit sur DIWA Internationale. Veuillez cliquer sur le bouton ci-dessous pour confirmer votre adresse email et activer votre compte :</p>
+            <a th:href="${confirmationUrl}" class="btn">Confirmer mon compte</a>
+            <p>Si le bouton ne fonctionne pas, vous pouvez copier ce lien dans votre navigateur :</p>
+            <p th:text="${confirmationUrl}">http://localhost:5173/confirm-account?token=...</p>
+            <p>Ce lien est valable pendant <span th:text="${expirationHours}">24</span> heures.</p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2025 DIWA Internationale. Tous droits réservés.</p>
+        </div>
+    </div>
+</body>
+</html>

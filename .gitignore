@@ -1,0 +1,10 @@
+﻿target/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+uploads/
+.env
+application-prod.properties
+application-local.properties

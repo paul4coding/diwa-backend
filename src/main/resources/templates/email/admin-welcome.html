@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Bienvenue dans l'équipe DIWA</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px; }
+        .header { background-color: #1A5276; color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { padding: 20px; }
+        .temp-pass { font-size: 20px; font-weight: bold; color: #1A5276; background-color: #f4f7f9; padding: 10px; border-radius: 5px; text-align: center; display: block; margin: 20px 0; }
+        .btn { display: inline-block; background-color: #1A5276; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; margin: 20px 0; }
+        .footer { font-size: 12px; color: #777; text-align: center; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Accès Admin DIWA</h1>
+        </div>
+        <div class="content">
+            <p>Bonjour <span th:text="${userName}">Administrateur</span>,</p>
+            <p>Un compte administrateur a été créé pour vous sur la plateforme DIWA Internationale.</p>
+            <p>Voici vos identifiants temporaires :</p>
+            <div class="temp-pass">Mot de passe : <span th:text="${tempPassword}">password123</span></div>
+            <p><strong>Note :</strong> Pour des raisons de sécurité, vous serez invité à modifier ce mot de passe dès votre première connexion.</p>
+            <div style="text-align: center;">
+                <a th:href="${loginUrl}" class="btn">Me connecter</a>
+            </div>
+        </div>
+        <div class="footer">
+            <p>&copy; 2025 DIWA Internationale. Tous droits réservés.</p>
+        </div>
+    </div>
+</body>
+</html>
