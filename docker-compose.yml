@@ -1,0 +1,67 @@
+version: '3.8'
+
+# ──────────────────────────────────────────────────────────────────
+# DIWA Backend — Docker Compose autonome
+#
+# Usage :
+#   cp .env.example .env   # remplir les variables
+#   docker compose up -d --build
+# ──────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── PostgreSQL ──────────────────────────────────────────────────
+  db:
+    image: postgres:15-alpine
+    container_name: diwa-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: DIWA_DB
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - diwa-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d DIWA_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - diwa-backend-net
+
+  # ── Backend Spring Boot ─────────────────────────────────────────
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: diwa-backend
+    restart: unless-stopped
+    ports:
+      - "8181:8181"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/DIWA_DB
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      DIWA_APP_JWT_SECRET: ${DIWA_APP_JWT_SECRET}
+      SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME}
+      SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD}
+      APP_FRONTEND_URL: ${APP_FRONTEND_URL}
+      APP_MAIL_FROM: ${SPRING_MAIL_USERNAME}
+      APP_UPLOAD_DIR: /app/uploads
+      DIWA_ADMIN_PASSWORD: ${DIWA_ADMIN_PASSWORD}
+    volumes:
+      - diwa-uploads:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - diwa-backend-net
+
+volumes:
+  diwa-db-data:
+  diwa-uploads:
+
+networks:
+  diwa-backend-net:
+    driver: bridge
