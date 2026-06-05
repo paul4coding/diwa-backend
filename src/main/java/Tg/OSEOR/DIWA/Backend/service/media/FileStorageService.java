@@ -27,26 +27,35 @@ public class FileStorageService {
         }
     }
 
+    // Extensions autorisées pour les uploads
+    private static final java.util.Set<String> ALLOWED_EXTENSIONS = java.util.Set.of(
+            ".jpg", ".jpeg", ".png", ".gif", ".webp", ".pdf", ".glb"
+    );
+
     public String storeFile(MultipartFile file, String subfolder) {
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
-        
-        try {
-            if (fileName.contains("..")) {
-                throw new RuntimeException("Le nom du fichier est invalide : " + fileName);
-            }
 
-            // Générer un nom unique
+        try {
+            // Extraire et valider l'extension
             String extension = "";
             int i = fileName.lastIndexOf('.');
             if (i > 0) {
-                extension = fileName.substring(i);
+                extension = fileName.substring(i).toLowerCase();
             }
+            if (!ALLOWED_EXTENSIONS.contains(extension)) {
+                throw new RuntimeException("Extension de fichier non autorisée : " + extension);
+            }
+
+            // Générer un nom de fichier aléatoire (pas de traversal possible)
             String uniqueFileName = UUID.randomUUID().toString() + extension;
 
-            // Créer le sous-répertoire si nécessaire
-            Path targetLocation = this.fileStorageLocation.resolve(subfolder);
+            // Créer le sous-répertoire et vérifier le confinement
+            Path targetLocation = this.fileStorageLocation.resolve(subfolder).normalize();
+            if (!targetLocation.startsWith(this.fileStorageLocation)) {
+                throw new RuntimeException("Chemin de dossier non autorisé : " + subfolder);
+            }
             Files.createDirectories(targetLocation);
-            
+
             Path filePath = targetLocation.resolve(uniqueFileName);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
@@ -86,6 +95,9 @@ public class FileStorageService {
     public byte[] readFile(String filePathString) {
         try {
             Path filePath = this.fileStorageLocation.resolve(filePathString).normalize();
+            if (!filePath.startsWith(this.fileStorageLocation)) {
+                throw new SecurityException("Accès interdit hors du répertoire uploads : " + filePathString);
+            }
             return Files.readAllBytes(filePath);
         } catch (IOException ex) {
             throw new RuntimeException("Impossible de lire le fichier : " + filePathString, ex);
@@ -95,6 +107,9 @@ public class FileStorageService {
     public void deleteFile(String filePathString) {
         try {
             Path filePath = this.fileStorageLocation.resolve(filePathString).normalize();
+            if (!filePath.startsWith(this.fileStorageLocation)) {
+                throw new SecurityException("Accès interdit hors du répertoire uploads : " + filePathString);
+            }
             Files.deleteIfExists(filePath);
         } catch (IOException ex) {
             System.err.println("Erreur lors de la suppression du fichier : " + filePathString);
@@ -136,6 +151,9 @@ public class FileStorageService {
     public void deleteDirectory(String folderPathString) {
         try {
             Path folderPath = this.fileStorageLocation.resolve(folderPathString).normalize();
+            if (!folderPath.startsWith(this.fileStorageLocation)) {
+                throw new SecurityException("Accès interdit hors du répertoire uploads : " + folderPathString);
+            }
             if (Files.exists(folderPath)) {
                 Files.walk(folderPath)
                         .sorted((p1, p2) -> p2.compareTo(p1))
