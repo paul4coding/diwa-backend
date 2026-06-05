@@ -1,0 +1,26 @@
+# ──────────────────────────────────────────────────────────────────
+# Copier ce fichier en application-dev.properties et remplir
+# ──────────────────────────────────────────────────────────────────
+
+spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=VOTRE_EMAIL@gmail.com
+spring.mail.password=VOTRE_APP_PASSWORD_GMAIL
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+spring.mail.properties.mail.smtp.starttls.required=true
+spring.mail.properties.mail.smtp.ssl.trust=smtp.gmail.com
+spring.mail.properties.mail.smtp.ssl.protocols=TLSv1.2
+
+app.mail.from=VOTRE_EMAIL@gmail.com
+app.mail.from-name=DIWA Elite Admin
+app.frontend.url=http://localhost:5173
+
+app.otp.expiration-minutes=10
+app.otp.length=6
+app.token.confirmation-expiration-hours=24
+app.token.reset-expiration-hours=2
+
+app.upload.dir=uploads
+spring.servlet.multipart.max-file-size=50MB
+spring.servlet.multipart.max-request-size=50MB
