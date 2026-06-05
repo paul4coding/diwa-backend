@@ -35,17 +35,33 @@ public class TicketSAVServiceImpl implements TicketSAVService {
     private TechnicienRepository technicienRepository;
 
     @Override
+    public TicketSAV createForUsername(String vehiculeImmat, String vehiculeMarque, String description, String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
+        return createTicket(vehiculeImmat, vehiculeMarque, description, user);
+    }
+
+    @Override
+    public List<TicketSAV> getByUsername(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
+        return ticketRepository.findByUserId(user.getId());
+    }
+
+    @Override
     public TicketSAV create(String vehiculeImmat, String vehiculeMarque, String description, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
+        return createTicket(vehiculeImmat, vehiculeMarque, description, user);
+    }
 
+    private TicketSAV createTicket(String vehiculeImmat, String vehiculeMarque, String description, User user) {
         TicketSAV ticket = new TicketSAV();
         ticket.setVehiculeImmat(vehiculeImmat);
         ticket.setVehiculeMarque(vehiculeMarque);
         ticket.setDescription(description);
         ticket.setStatut(StatutTicket.OUVERT);
         ticket.setUser(user);
-
         return ticketRepository.save(ticket);
     }
 

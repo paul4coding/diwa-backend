@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import Tg.OSEOR.DIWA.Backend.dto.TicketSAVDTO.TicketSAVDTOResponse;
@@ -30,20 +31,24 @@ public class TicketSAVController {
     private TicketSAVMapper ticketMapper;
 
     @PostMapping("/tickets")
-    @Operation(summary = "Créer un ticket SAV (CLIENT)")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Créer un ticket SAV (CLIENT authentifié)")
     public ResponseEntity<TicketSAVDTOResponse> createTicket(
             @RequestParam String vehiculeImmat,
             @RequestParam String vehiculeMarque,
             @RequestParam String description,
-            @RequestParam Long userId) {
-        TicketSAV ticket = ticketService.create(vehiculeImmat, vehiculeMarque, description, userId);
+            Authentication auth) {
+        // userId extrait du JWT — impossible à usurper depuis la requête
+        TicketSAV ticket = ticketService.createForUsername(vehiculeImmat, vehiculeMarque, description, auth.getName());
         return ResponseEntity.status(201).body(ticketMapper.toResponse(ticket));
     }
 
     @GetMapping("/tickets/mes")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Obtenir mes tickets SAV")
-    public ResponseEntity<List<TicketSAVDTOResponse>> getMesTickets(@RequestParam Long userId) {
-        List<TicketSAVDTOResponse> dtos = ticketService.getByUser(userId).stream()
+    public ResponseEntity<List<TicketSAVDTOResponse>> getMesTickets(Authentication auth) {
+        // username extrait du JWT — impossible de voir les tickets d'un autre utilisateur
+        List<TicketSAVDTOResponse> dtos = ticketService.getByUsername(auth.getName()).stream()
             .map(ticketMapper::toResponse)
             .collect(Collectors.toList());
         return ResponseEntity.ok(dtos);
@@ -78,12 +83,14 @@ public class TicketSAVController {
     }
 
     @PostMapping("/tickets/{id}/commentaires")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Ajouter un commentaire à un ticket SAV")
     public ResponseEntity<TicketSAVDTOResponse.CommentaireTicketDTO> addCommentaire(
             @PathVariable Long id,
-            @RequestParam String auteur,
-            @RequestParam String message) {
-        CommentaireTicket c = ticketService.addCommentaire(id, auteur, message);
+            @RequestParam String message,
+            Authentication auth) {
+        // auteur extrait du JWT — impossible d'usurper l'identité d'un autre utilisateur
+        CommentaireTicket c = ticketService.addCommentaire(id, auth.getName(), message);
         return ResponseEntity.status(201).body(new TicketSAVDTOResponse.CommentaireTicketDTO(
             c.getMessage(), c.getAuteur(), c.getDateCommentaire()));
     }

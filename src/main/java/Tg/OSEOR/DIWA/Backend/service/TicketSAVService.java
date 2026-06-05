@@ -9,6 +9,11 @@ public interface TicketSAVService {
 
     TicketSAV create(String vehiculeImmat, String vehiculeMarque, String description, Long userId);
 
+    // Méthodes sécurisées — utilisent le username du JWT, pas un param externe
+    TicketSAV createForUsername(String vehiculeImmat, String vehiculeMarque, String description, String username);
+
+    List<TicketSAV> getByUsername(String username);
+
     TicketSAV updateStatut(Long ticketId, String statut);
 
     TicketSAV assignTechnicien(Long ticketId, Long technicienId);
