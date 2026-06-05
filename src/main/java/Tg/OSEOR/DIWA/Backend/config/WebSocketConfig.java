@@ -1,24 +1,36 @@
 package Tg.OSEOR.DIWA.Backend.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.*;
+import Tg.OSEOR.DIWA.Backend.security.jwt.JwtChannelInterceptor;
+import Tg.OSEOR.DIWA.Backend.security.jwt.JwtTokenProvider;
 
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+    private final JwtTokenProvider jwtTokenProvider;
+
+    /** Origines autorisées — injectée depuis app.frontend.url (ex. https://diwa.tg) */
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
+
+    public WebSocketConfig(JwtTokenProvider jwtTokenProvider) {
+        this.jwtTokenProvider = jwtTokenProvider;
+    }
+
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // Endpoint pour le Chat Atelier et les notifications temps réel
         registry.addEndpoint("/ws-atelier")
-            .setAllowedOriginPatterns("*")
-            .withSockJS();
-            
-        // Fallback pour /ws si utilisé ailleurs
+                .setAllowedOriginPatterns(frontendUrl)
+                .withSockJS();
+
         registry.addEndpoint("/ws")
-            .setAllowedOriginPatterns("*")
-            .withSockJS();
+                .setAllowedOriginPatterns(frontendUrl)
+                .withSockJS();
     }
 
     @Override
@@ -26,5 +38,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         config.setApplicationDestinationPrefixes("/app");
         config.enableSimpleBroker("/topic", "/queue");
         config.setUserDestinationPrefix("/user");
+    }
+
+    /**
+     * Enregistre l'intercepteur JWT sur le canal entrant.
+     * Chaque frame STOMP CONNECT doit porter un header "Authorization: Bearer <token>".
+     */
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(new JwtChannelInterceptor(jwtTokenProvider));
     }
 }

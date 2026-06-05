@@ -104,12 +104,7 @@ public class GarageController {
     public ResponseEntity<?> getGlobalPlanning(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate debut,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin) {
-        try {
-            return ResponseEntity.ok(garageService.getGlobalPlanning(debut, fin));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body(Map.of("error", e.getMessage(), "statut", 500));
-        }
+        return ResponseEntity.ok(garageService.getGlobalPlanning(debut, fin));
     }
 
     @PutMapping("/interventions/{ticketId}/assign")

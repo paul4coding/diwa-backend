@@ -1,5 +1,7 @@
 package Tg.OSEOR.DIWA.Backend.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -29,6 +31,8 @@ import org.springframework.web.server.ResponseStatusException;
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     // ─── 1. Validation @Valid ─────────────────────────────────────────────
 
@@ -96,9 +100,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<BaseResponse<Object>> handleRuntimeException(
             RuntimeException ex, WebRequest request) {
-        ex.printStackTrace();
+        log.error("Erreur interne [{}]: {}", ex.getClass().getSimpleName(), ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new BaseResponse<>(500, ex.getMessage(), null));
+                .body(new BaseResponse<>(500, "Une erreur interne est survenue.", null));
     }
 
     // ─── 5. Exception générique (fallback ultime) ─────────────────────────
@@ -106,8 +110,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<BaseResponse<Object>> handleGlobalException(
             Exception ex, WebRequest request) {
-        ex.printStackTrace();
+        log.error("Erreur inattendue [{}]: {}", ex.getClass().getSimpleName(), ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new BaseResponse<>(500, "Erreur serveur interne : " + ex.getMessage(), null));
+                .body(new BaseResponse<>(500, "Une erreur interne est survenue.", null));
     }
 }

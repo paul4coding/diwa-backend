@@ -26,26 +26,20 @@ public class ContactController {
 
     @PostMapping("/send")
     public ResponseEntity<?> sendContactMessage(@RequestBody ContactRequest request) {
-        try {
-            if (request == null || request.getNom() == null || request.getEmail() == null || request.getMessage() == null) {
-                return ResponseEntity.badRequest().body("Données incomplètes.");
-            }
-
-            // 1. Sauvegarder en base de données
-            ContactMessage message = new ContactMessage();
-            message.setNom(request.getNom());
-            message.setEmail(request.getEmail());
-            message.setTelephone(request.getTelephone());
-            message.setMessage(request.getMessage());
-            contactMessageRepository.save(message);
-
-            // 2. Envoyer notification à l'admin
-            emailService.sendContactEmail(request);
-
-            return ResponseEntity.ok().body(Map.of("message", "Votre message a été envoyé avec succès."));
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Erreur: " + e.getMessage());
+        if (request == null || request.getNom() == null || request.getEmail() == null || request.getMessage() == null) {
+            return ResponseEntity.badRequest().body("Données incomplètes.");
         }
+
+        ContactMessage message = new ContactMessage();
+        message.setNom(request.getNom());
+        message.setEmail(request.getEmail());
+        message.setTelephone(request.getTelephone());
+        message.setMessage(request.getMessage());
+        contactMessageRepository.save(message);
+
+        emailService.sendContactEmail(request);
+
+        return ResponseEntity.ok().body(Map.of("message", "Votre message a été envoyé avec succès."));
     }
 
     @GetMapping("/admin/all")
@@ -57,27 +51,21 @@ public class ContactController {
     @PostMapping("/admin/reply")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> replyToMessage(@RequestBody Map<String, String> payload) {
-        try {
-            Long id = Long.parseLong(payload.get("id"));
-            String replyContent = payload.get("reponse");
+        Long id = Long.parseLong(payload.get("id"));
+        String replyContent = payload.get("reponse");
 
-            ContactMessage message = contactMessageRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Message non trouvé"));
+        ContactMessage message = contactMessageRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Message non trouvé"));
 
-            // 1. Envoyer le mail de réponse
-            emailService.sendContactReply(message.getEmail(), message.getNom(), message.getMessage(), replyContent);
+        emailService.sendContactReply(message.getEmail(), message.getNom(), message.getMessage(), replyContent);
 
-            // 2. Mettre à jour en base de données
-            message.setReponse(replyContent);
-            message.setDateReponse(LocalDateTime.now());
-            message.setRepondu(true);
-            message.setLu(true);
-            contactMessageRepository.save(message);
+        message.setReponse(replyContent);
+        message.setDateReponse(LocalDateTime.now());
+        message.setRepondu(true);
+        message.setLu(true);
+        contactMessageRepository.save(message);
 
-            return ResponseEntity.ok().body(Map.of("message", "Réponse envoyée avec succès au client."));
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Erreur: " + e.getMessage());
-        }
+        return ResponseEntity.ok().body(Map.of("message", "Réponse envoyée avec succès au client."));
     }
 
     @PutMapping("/admin/mark-read/{id}")

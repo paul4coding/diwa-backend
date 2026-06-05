@@ -20,24 +20,14 @@ public class StatistiquesController {
     @GetMapping("/dashboard")
     @PreAuthorize("hasAnyRole('ADMIN', 'RECEPTIONNISTE', 'CHEF_TECHNICIEN', 'ROLE_ADMIN', 'ROLE_RECEPTIONNISTE', 'ROLE_CHEF_TECHNICIEN')")
     public ResponseEntity<BaseResponse<DashboardStatsDTO>> getDashboardStats() {
-        try {
-            DashboardStatsDTO data = statsService.getDashboardStats();
-            return ResponseEntity.ok(new BaseResponse<>(200, "Statistiques récupérées", data));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body(BaseResponse.error(500, "Erreur Stats: " + e.getMessage()));
-        }
+        DashboardStatsDTO data = statsService.getDashboardStats();
+        return ResponseEntity.ok(new BaseResponse<>(200, "Statistiques récupérées", data));
     }
 
     @GetMapping("/full")
     @PreAuthorize("hasAnyRole('ADMIN', 'RECEPTIONNISTE', 'CHEF_TECHNICIEN', 'ROLE_ADMIN', 'ROLE_RECEPTIONNISTE', 'ROLE_CHEF_TECHNICIEN')")
     public ResponseEntity<BaseResponse<DashboardStatsDTO>> getFullStats() {
-        try {
-            DashboardStatsDTO data = statsService.getDashboardStats();
-            return ResponseEntity.ok(new BaseResponse<>(200, "Analyses complètes récupérées", data));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body(BaseResponse.error(500, "Erreur Analyses: " + e.getMessage()));
-        }
+        DashboardStatsDTO data = statsService.getDashboardStats();
+        return ResponseEntity.ok(new BaseResponse<>(200, "Analyses complètes récupérées", data));
     }
 }
