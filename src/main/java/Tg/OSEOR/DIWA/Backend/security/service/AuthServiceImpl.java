@@ -138,43 +138,13 @@ public class AuthServiceImpl implements AuthService {
                              signUpRequest.getPrenom(),
                              signUpRequest.getNom());
 
-        Set<String> strRoles = signUpRequest.getRoles();
+        // Sécurité : l'inscription publique assigne toujours ROLE_CLIENT.
+        // Les rôles staff (ADMIN, RECEPTIONNISTE, etc.) sont attribués
+        // uniquement par un administrateur via AdminController.
         Set<Role> roles = new HashSet<>();
-
-        if (strRoles == null) {
-            Role clientRole = roleRepository.findByName(ERole.ROLE_CLIENT)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erreur: Le rôle par défaut n'est pas trouvé."));
-            roles.add(clientRole);
-        } else {
-            strRoles.forEach(role -> {
-                String r = role.toUpperCase();
-                if (r.equals("ADMIN") || r.equals("ROLE_ADMIN")) {
-                    Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
-                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Erreur: Le rôle ADMIN n'est pas trouvé."));
-                    roles.add(adminRole);
-                } else if (r.equals("RECEPTIONNISTE") || r.equals("ROLE_RECEPTIONNISTE")) {
-                    Role recepRole = roleRepository.findByName(ERole.ROLE_RECEPTIONNISTE)
-                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Erreur: Le rôle RECEPTIONNISTE n'est pas trouvé."));
-                    roles.add(recepRole);
-                } else if (r.equals("CHEF_TECHNICIEN") || r.equals("ROLE_CHEF_TECHNICIEN")) {
-                    Role techRole = roleRepository.findByName(ERole.ROLE_CHEF_TECHNICIEN)
-                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Erreur: Le rôle CHEF_TECHNICIEN n'est pas trouvé."));
-                    roles.add(techRole);
-                } else if (r.equals("STOCK") || r.equals("ROLE_STOCK")) {
-                    Role stockRole = roleRepository.findByName(ERole.ROLE_STOCK)
-                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Erreur: Le rôle STOCK n'est pas trouvé."));
-                    roles.add(stockRole);
-                } else if (r.equals("DG") || r.equals("ROLE_DG")) {
-                    Role dgRole = roleRepository.findByName(ERole.ROLE_DG)
-                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Erreur: Le rôle DG n'est pas trouvé."));
-                    roles.add(dgRole);
-                } else {
-                    Role clientRole = roleRepository.findByName(ERole.ROLE_CLIENT)
-                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Erreur: Le rôle CLIENT n'est pas trouvé."));
-                    roles.add(clientRole);
-                }
-            });
-        }
+        Role clientRole = roleRepository.findByName(ERole.ROLE_CLIENT)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erreur: Le rôle par défaut n'est pas trouvé."));
+        roles.add(clientRole);
 
         user.setRoles(roles);
         User savedUser = userRepository.save(user);
