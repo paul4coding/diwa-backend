@@ -11,4 +11,4 @@ uploads/
 application.properties
 application-dev.properties
 application-local.properties
-application-prod.properties
+# application-prod.properties est COMMITÉ car il ne contient que des ${ENV_VAR} (pas de secrets)

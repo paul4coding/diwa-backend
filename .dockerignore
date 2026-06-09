@@ -1,0 +1,34 @@
+# ──────────────────────────────────────────────────────────────────
+# DIWA Backend — .dockerignore
+# Exclut les fichiers inutiles du build context Docker
+# ──────────────────────────────────────────────────────────────────
+
+# Build artifacts (reconstruits dans le conteneur)
+target/
+*.jar
+*.war
+
+# IDE & OS
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Secrets locaux (NE JAMAIS envoyer au daemon Docker)
+.env
+.env.local
+src/main/resources/application.properties
+src/main/resources/application-dev.properties
+src/main/resources/application-local.properties
+
+# Logs & uploads locaux
+logs/
+uploads/
+*.log
+
+# Git
+.git/
+.gitignore
+
+# Docs
+*.md
