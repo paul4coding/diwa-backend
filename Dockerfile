@@ -11,5 +11,10 @@ RUN mvn package -DskipTests
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
+
+# Assets catalogue pré-chargés (vehicules, 360°, pièces, modèles 3D)
+# Le volume Docker copiera ces fichiers au premier démarrage si le volume est vide
+COPY uploads/ /app/uploads/
+
 EXPOSE 8181
 ENTRYPOINT ["java", "-jar", "app.jar", "--spring.profiles.active=prod"]

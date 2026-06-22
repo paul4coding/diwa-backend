@@ -21,10 +21,13 @@ src/main/resources/application.properties
 src/main/resources/application-dev.properties
 src/main/resources/application-local.properties
 
-# Logs & uploads locaux
+# Logs locaux
 logs/
-uploads/
 *.log
+
+# Données opérationnelles (régénérées en prod, pas des assets catalogue)
+uploads/missions/
+uploads/proformas/
 
 # Git
 .git/
