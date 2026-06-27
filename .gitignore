@@ -4,7 +4,7 @@
 *.war
 *.ear
 *.log
-uploads/
+# uploads/ est COMMITÉ pour que docker build (COPY uploads/) fonctionne depuis un clone git
 
 # ── Secrets — NE JAMAIS COMMITTER ────────────────────────────────
 .env
